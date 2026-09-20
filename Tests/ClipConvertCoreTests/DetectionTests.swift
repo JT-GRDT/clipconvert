@@ -25,6 +25,20 @@ final class DetectionTests: XCTestCase {
         XCTAssertFalse(detectSignals("-----").tableDelimiter)
     }
 
+    func testShortDoubleDashDelimiterRowIsATable() {
+        // GFM allows a single dash per cell; two columns rule out a
+        // horizontal rule.
+        XCTAssertTrue(detectSignals("|--|--|").tableDelimiter)
+    }
+
+    func testSingleDashDelimiterRowIsATable() {
+        XCTAssertTrue(detectSignals("|-|-|").tableDelimiter)
+    }
+
+    func testAlignedSingleDashDelimiterRowIsATable() {
+        XCTAssertTrue(detectSignals("|:-|-:|").tableDelimiter)
+    }
+
     func testDetectsCodeFence() {
         let text = """
         Here you go:

@@ -35,7 +35,7 @@ public func detectSignals(_ text: String) -> MarkdownSignals {
     // A table delimiter row needs at least two columns, which is what
     // separates it from a horizontal rule.
     signals.tableDelimiter = matches(
-        #"^ {0,3}\|?[ \t]*:?-{3,}:?[ \t]*(\|[ \t]*:?-{3,}:?[ \t]*)+\|?[ \t]*$"#,
+        #"^ {0,3}\|?[ \t]*:?-{1,}:?[ \t]*(\|[ \t]*:?-{1,}:?[ \t]*)+\|?[ \t]*$"#,
         text
     )
     signals.fence = matches(#"^ {0,3}(```|~~~)"#, text)
