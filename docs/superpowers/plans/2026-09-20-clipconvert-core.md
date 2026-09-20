@@ -41,9 +41,30 @@ Tasks 1, 2 and 4 are gates. If one fails, **stop and report** rather than workin
 - Consumes: nothing
 - Produces: a buildable SwiftPM package named `ClipConvert` with library product `ClipConvertCore`
 
-- [ ] **Step 1: Install the Swift toolchain**
+- [ ] **Step 1a: Install the Visual Studio C++ build tools**
 
-In PowerShell:
+Swift on Windows is not self-contained: it uses the MSVC toolchain for
+linking and needs the Windows SDK headers. Installing `Swift.Toolchain`
+without this produces a `swift` command that fails at link time, which is
+easy to misread as "Swift does not work on Windows."
+
+This install is several gigabytes and needs elevation, so **the user runs
+it**, in PowerShell:
+
+```powershell
+winget install --id Microsoft.VisualStudio.2022.BuildTools -e --override "--quiet --wait --norestart --add Microsoft.VisualStudio.Workload.VCTools --includeRecommended"
+```
+
+Verify:
+
+```powershell
+& "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe" -products * -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property displayName
+```
+
+Expected: a line naming the installed Build Tools. Empty output means the
+workload did not install.
+
+- [ ] **Step 1b: Install the Swift toolchain**
 
 ```powershell
 winget install --id Swift.Toolchain -e
@@ -55,7 +76,7 @@ Close and reopen the terminal, then verify:
 swift --version
 ```
 
-Expected: a version string, Swift 6.0 or newer. If `swift` is not recognised after reopening the terminal, install manually from https://www.swift.org/install/windows/ and confirm the installer added Swift to `PATH`.
+Expected: a version string, Swift 6.0 or newer (6.4.0 at time of writing). If `swift` is not recognised after reopening the terminal, install manually from https://www.swift.org/install/windows/ and confirm the installer added Swift to `PATH`.
 
 **GATE:** if no working `swift` command, stop and report.
 
@@ -218,13 +239,20 @@ final class MarkdownLibraryTests: XCTestCase {
         |---|---|
         | 1 | 2 |
         """
-        // A single table block, not three paragraphs.
-        XCTAssertEqual(parsedBlockCount(markdown), 1)
+        // Must assert the NODE TYPE, not the block count. With the GFM
+        // extension off, those three lines parse as one Paragraph joined
+        // by soft breaks — so a count of 1 passes either way and proves
+        // nothing.
+        XCTAssertTrue(firstBlockIsTable(markdown))
+    }
+
+    func testProseIsNotATable() {
+        XCTAssertFalse(firstBlockIsTable("Just a sentence."))
     }
 }
 ```
 
-The second test matters more than the first: it proves the GFM table extension is active, which the whole product depends on.
+The table tests matter more than the block-count one: they prove the GFM table extension is active, which the whole product depends on.
 
 - [ ] **Step 4: Run the test to verify it fails**
 
@@ -249,6 +277,14 @@ func parsedBlockCount(_ markdown: String) -> Int {
     let document = Document(parsing: markdown)
     return document.childCount
 }
+
+/// Whether the first top-level block parses as a GFM table.
+/// Exists to prove the table extension is enabled — the one parser
+/// capability the product cannot ship without.
+func firstBlockIsTable(_ markdown: String) -> Bool {
+    let document = Document(parsing: markdown)
+    return document.child(at: 0) is Markdown.Table
+}
 ```
 
 - [ ] **Step 6: Run the test to verify it passes**
@@ -257,9 +293,9 @@ func parsedBlockCount(_ markdown: String) -> Int {
 swift test
 ```
 
-Expected: PASS, 3 tests.
+Expected: PASS, 4 tests (1 smoke + 3 markdown).
 
-If `testParsesGFMTable` fails with a count of 3, tables are being parsed as paragraphs and the GFM extension is off. Check whether the installed swift-markdown version needs explicit parse options, and record the finding before continuing.
+If `testParsesGFMTable` fails, tables are being parsed as paragraphs and the GFM extension is off. Check whether the installed swift-markdown version needs explicit parse options, and record the finding before continuing. **This is a gate failure, not a detail** — without table parsing there is no product.
 
 - [ ] **Step 7: Commit**
 
