@@ -33,14 +33,15 @@ Paste and Match Style.
 
 ## Additional checks
 
-Copy each Markdown snippet below with `rtfprobe`, paste it into Word, and
-record what you see against "What to look for".
+The same paste you already made into Word for the table above also
+contains three labelled sections further down, after the bullet list.
+Scroll down within that same pasted content and check these too.
 
-| Check | Markdown source to paste | What to look for |
+| Check | Where to look | What to look for |
 |---|---|---|
-| Table cell line break | A table with one cell containing `first line<br>second line` | "first line" and "second line" appear as two separate lines *inside the same cell* — not fused into "first linesecond line" and not split into two rows. |
-| Tight bullet list | Three list items with no blank line between them: `- one`, `- two`, `- three` | No unwanted extra vertical space between bullets — a tight list should not paste with the spacing of a loose (blank-line-separated) list. |
-| Non-ASCII characters | `The price went up — it's now €12, not what we'd hoped.` | The em dash, euro sign, and curly apostrophes paste intact. Garbled characters (e.g. `â€"` instead of `—`) mean the wrong text encoding was guessed. |
+| Table cell line break | The "Line break in a table cell" section — the one-cell table below it | "first line" and "second line" appear as two separate lines *inside the same cell* — not fused into "first linesecond line" and not split into two rows. |
+| Tight bullet list | The "Tight bullet list" section — the three items "one", "two", "three" | No unwanted extra vertical space between bullets — a tight list should not paste with the spacing of a loose (blank-line-separated) list. |
+| Non-ASCII characters | The "Non-ASCII characters" section — the paragraph starting "The price went up" | The em dash, euro sign, and curly apostrophes paste intact. Garbled characters (e.g. `â€"` instead of `—`) mean the wrong text encoding was guessed. |
 
 ## The one that matters most
 

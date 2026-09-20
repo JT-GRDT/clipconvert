@@ -1,7 +1,10 @@
 import AppKit
 
 // A deliberately representative sample: a table with a header row,
-// inline code inside a cell, bold text, a heading and a list.
+// inline code inside a cell, bold text, a heading and a list, plus
+// three labelled sections covering the "Additional checks" in
+// docs/paste-checklist.md (a line break inside a table cell, a tight
+// bullet list, and a line of non-ASCII characters).
 let html = """
 <h2>Quarterly results</h2>
 <p>Revenue was <strong>up 12%</strong> against forecast.</p>
@@ -13,6 +16,19 @@ let html = """
   </tbody>
 </table>
 <ul><li>First point</li><li>Second point</li></ul>
+
+<h3>Line break in a table cell</h3>
+<table border="1" cellspacing="0" cellpadding="4">
+  <tbody>
+    <tr><td>first line<br>second line</td></tr>
+  </tbody>
+</table>
+
+<h3>Tight bullet list</h3>
+<ul><li>one</li><li>two</li><li>three</li></ul>
+
+<h3>Non-ASCII characters</h3>
+<p>The price went up — it's now €12, not what we'd hoped.</p>
 """
 
 guard let data = html.data(using: .utf8) else {
