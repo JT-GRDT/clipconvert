@@ -93,8 +93,24 @@ enum SkipReason {
 
 func plan(plainText: String, hasHTMLFlavor: Bool) -> ClipboardAction
 func markdownToHTML(_ markdown: String) -> String
-func containsStructuralMarkdown(_ text: String) -> Bool
+func shouldConvert(_ text: String) -> Bool
+func detectSignals(_ text: String) -> MarkdownSignals
 ```
+
+Detection is two-tier. `detectSignals` is purely descriptive — it reports
+which Markdown features are present. `shouldConvert` applies the rule:
+
+- **Strong signals** (a table delimiter row, a code fence) convert on their
+  own. Nothing but Markdown produces them.
+- **Weak block signals** (headings, list markers, blockquotes) must be
+  corroborated by an **inline signal** (`**bold**` or `[a](b)`). Weak
+  signals alone are ambiguous — `# comment` appears in shell and Python,
+  `- item` appears in YAML.
+
+This is what keeps source code and config files safe: YAML has `#` comments
+and `-` items but almost never `**bold**`, so it is left alone. Italics and
+backticks are deliberately excluded from the inline set, because underscores
+are pervasive in code and backticks are shell command substitution.
 
 The shell calls `plan` and does what it says. No decisions live in the shell.
 
