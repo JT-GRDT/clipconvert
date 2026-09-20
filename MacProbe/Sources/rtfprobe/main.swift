@@ -1,5 +1,7 @@
 import AppKit
 
+let verifyMode = CommandLine.arguments.contains("--verify")
+
 // A deliberately representative sample: a table with a header row,
 // inline code inside a cell, bold text, a heading and a list, plus
 // three labelled sections covering the "Additional checks" in
@@ -58,6 +60,35 @@ guard let rtf = attributed.rtf(
 ) else {
     print("FAIL: could not produce RTF")
     exit(1)
+}
+
+if verifyMode {
+    // Headless CI check: confirm the RTF actually encodes a table, without
+    // touching the pasteboard (there is no real pasteboard on a CI runner,
+    // and writing to one is not what this mode is testing).
+    guard let rtfString = String(data: rtf, encoding: .isoLatin1) else {
+        print("FAIL: could not decode RTF bytes as Latin-1")
+        exit(1)
+    }
+
+    let tableControlWords = ["\\trowd", "\\cellx", "\\row"]
+    var found: [String] = []
+    var missing: [String] = []
+    for word in tableControlWords {
+        if rtfString.contains(word) {
+            found.append(word)
+        } else {
+            missing.append(word)
+        }
+    }
+
+    if missing.isEmpty {
+        print("PASS: RTF contains table control words: \(found.joined(separator: ", "))")
+        exit(0)
+    } else {
+        print("FAIL: RTF is missing table control words: \(missing.joined(separator: ", ")) (found: \(found.joined(separator: ", ")))")
+        exit(1)
+    }
 }
 
 let pasteboard = NSPasteboard.general

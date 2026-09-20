@@ -1,52 +1,48 @@
 # Paste fidelity checklist
 
-Thanks for testing. This takes about 15 minutes.
+Thanks for testing. This takes about 5 minutes.
 
 ## Setup
 
 1. Download the `rtfprobe` artifact from the latest GitHub Actions run
    (Actions tab → newest run → Artifacts → `rtfprobe`), and unzip it.
-2. In Terminal, in the folder containing the file:
+2. Open Terminal, in the folder containing the file, and paste this one line:
 
    ```
-   chmod +x rtfprobe
-   xattr -d com.apple.quarantine rtfprobe
-   ./rtfprobe
+   cd ~/Downloads && chmod +x rtfprobe && xattr -d com.apple.quarantine rtfprobe && ./rtfprobe
    ```
 
-   It should print `OK: wrote RTF (...) bytes`. If it hangs for more than
-   ten seconds, press Ctrl+C and report that — it is a useful result.
+   (Adjust `~/Downloads` if you unzipped it somewhere else.) This marks the
+   file runnable, removes macOS's "downloaded from the internet" block, and
+   runs it. It should print `OK: wrote RTF (...) bytes`. If it hangs for
+   more than ten seconds, press Ctrl+C and report that — it is a useful
+   result.
 
 ## Test
 
-Paste (Cmd+V) into each app below and record what you see. Do not use
-Paste and Match Style.
+Paste (Cmd+V) into each of these two apps. Do not use Paste and Match Style.
 
-| App | Table has gridlines? | Header row bold? | "up 12%" bold? | Heading larger? | Bullets are bullets? |
-|---|---|---|---|---|---|
-| Microsoft Word | | | | | |
-| Outlook for Mac (new message) | | | | | |
-| Gmail in Chrome | | | | | |
-| Google Docs | | | | | |
-| Apple Notes | | | | | |
-| TextEdit (rich text mode) | | | | | |
+1. **Microsoft Word** — new blank document.
+2. **Outlook for Mac** — new message.
 
-## Additional checks
+Take a screenshot of each and send both back.
 
-The same paste you already made into Word for the table above also
-contains three labelled sections further down, after the bullet list.
-Scroll down within that same pasted content and check these too.
+### What we're looking for
 
-| Check | Where to look | What to look for |
-|---|---|---|
-| Table cell line break | The "Line break in a table cell" section — the one-cell table below it | "first line" and "second line" appear as two separate lines *inside the same cell* — not fused into "first linesecond line" and not split into two rows. |
-| Tight bullet list | The "Tight bullet list" section — the three items "one", "two", "three" | No unwanted extra vertical space between bullets — a tight list should not paste with the spacing of a loose (blank-line-separated) list. |
-| Non-ASCII characters | The "Non-ASCII characters" section — the paragraph starting "The price went up" | The em dash, euro sign, and curly apostrophes paste intact. Garbled characters (e.g. `â€"` instead of `—`) mean the wrong text encoding was guessed. |
+- A real table with visible gridlines, not just text with tabs.
+- The header row is bold.
+- The two-line cell ("first line" / "second line") shows as two lines
+  inside one cell — not fused into one line, not split into two rows.
+- The non-ASCII characters (`—` `€` `'`) look right, not garbled
+  (e.g. `â€"` instead of `—`).
+- List spacing looks sane — no huge gaps between bullets.
 
 ## The one that matters most
 
-Outlook for Mac. If the table arrives as a real table there, the project
-works. If it arrives as runs of text, say so — that single answer changes
-the design.
+Outlook is the answer that matters most. If the table arrives there as a
+real table, the project works. If it arrives as runs of text, say so —
+that single answer changes the design.
 
-Please also paste a screenshot of the Word and Outlook results.
+If Word and Outlook both work, we may come back later and ask you to
+repeat this with Gmail, Google Docs, Notes, and TextEdit — that's a
+deliberate follow-up, not something we forgot now.

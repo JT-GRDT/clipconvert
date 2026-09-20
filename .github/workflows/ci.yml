@@ -23,6 +23,10 @@ jobs:
       - name: Build probe
         working-directory: MacProbe
         run: swift build -c release
+      - name: Verify RTF table output
+        working-directory: MacProbe
+        timeout-minutes: 5
+        run: .build/release/rtfprobe --verify
       - name: Upload probe binary
         uses: actions/upload-artifact@v4
         with:
