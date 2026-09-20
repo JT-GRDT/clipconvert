@@ -9,6 +9,11 @@ final class GoldenFileTests: XCTestCase {
     static let regenerate = false
 
     func testFixturesMatchGoldenOutput() throws {
+        XCTAssertFalse(
+            Self.regenerate,
+            "regenerate must be false when committed, or the golden tests silently rewrite their own expectations and can never fail"
+        )
+
         let fixtures = try urls(inResourceDirectory: "Fixtures", extension: "md")
         XCTAssertFalse(fixtures.isEmpty, "no fixtures found — check Package.swift resources")
 
@@ -55,6 +60,48 @@ final class GoldenFileTests: XCTestCase {
                 shouldConvert(text),
                 "false positive — would have mangled \(sampleURL.lastPathComponent)"
             )
+        }
+    }
+
+    /// Guards against the whole class of bug that motivated Fix 1: any
+    /// node type the renderer fails to visit (a new `defaultVisit` leaf)
+    /// silently drops its content. Every alphanumeric word of 4+
+    /// characters in a fixture's source must show up somewhere in the
+    /// rendered HTML.
+    ///
+    /// One exclusion: a fenced code block's info string (the language
+    /// tag on the opening ``` line, e.g. "bash" in `list-with-code-*`)
+    /// is fence syntax, not prose content — `visitCodeBlock` intentionally
+    /// renders only `codeBlock.code`, not the language, and adding a
+    /// `class="language-…"` attribute is out of scope for this fix wave.
+    /// Excluding fence-opener lines here avoids a false failure unrelated
+    /// to any dropped node.
+    func testNoWordIsSilentlyDroppedFromFixtures() throws {
+        let wordPattern = try NSRegularExpression(pattern: "[A-Za-z0-9]{4,}")
+
+        for markdownURL in try urls(inResourceDirectory: "Fixtures", extension: "md") {
+            let markdown = try String(contentsOf: markdownURL, encoding: .utf8)
+            let html = markdownToHTML(markdown)
+
+            let contentOnly = markdown
+                .split(separator: "\n", omittingEmptySubsequences: false)
+                .filter { !$0.hasPrefix("```") }
+                .joined(separator: "\n")
+
+            let nsContent = contentOnly as NSString
+            let matches = wordPattern.matches(
+                in: contentOnly,
+                range: NSRange(location: 0, length: nsContent.length)
+            )
+            let words = Set(matches.map { nsContent.substring(with: $0.range) })
+
+            for word in words {
+                XCTAssertTrue(
+                    html.contains(word),
+                    "word '\(word)' from \(markdownURL.lastPathComponent) is missing from the " +
+                    "rendered HTML — possible silent content loss"
+                )
+            }
         }
     }
 
