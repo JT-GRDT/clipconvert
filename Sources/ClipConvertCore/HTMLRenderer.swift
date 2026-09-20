@@ -27,6 +27,38 @@ struct HTMLRenderer: MarkupWalker {
         descendInto(paragraph)
         html += "</p>"
     }
+
+    mutating func visitStrong(_ strong: Strong) {
+        html += "<strong>"
+        descendInto(strong)
+        html += "</strong>"
+    }
+
+    mutating func visitEmphasis(_ emphasis: Emphasis) {
+        html += "<em>"
+        descendInto(emphasis)
+        html += "</em>"
+    }
+
+    mutating func visitInlineCode(_ inlineCode: InlineCode) {
+        // No descendInto: inline code has no child markup.
+        html += "<code>" + escapeHTML(inlineCode.code) + "</code>"
+    }
+
+    mutating func visitLink(_ link: Markdown.Link) {
+        let destination = escapeHTML(link.destination ?? "")
+        html += "<a href=\"\(destination)\">"
+        descendInto(link)
+        html += "</a>"
+    }
+
+    mutating func visitSoftBreak(_ softBreak: SoftBreak) {
+        html += " "
+    }
+
+    mutating func visitLineBreak(_ lineBreak: LineBreak) {
+        html += "<br>"
+    }
 }
 
 /// Convert Markdown source into HTML suitable for the macOS pasteboard.

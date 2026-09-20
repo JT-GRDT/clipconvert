@@ -39,3 +39,52 @@ final class HTMLRendererTests: XCTestCase {
         )
     }
 }
+
+final class InlineRenderingTests: XCTestCase {
+    func testStrong() {
+        XCTAssertEqual(
+            markdownToHTML("This is **bold**."),
+            "<p>This is <strong>bold</strong>.</p>"
+        )
+    }
+
+    func testEmphasis() {
+        XCTAssertEqual(
+            markdownToHTML("This is *italic*."),
+            "<p>This is <em>italic</em>.</p>"
+        )
+    }
+
+    func testInlineCodeIsEscaped() {
+        XCTAssertEqual(
+            markdownToHTML("Run `a < b`."),
+            "<p>Run <code>a &lt; b</code>.</p>"
+        )
+    }
+
+    func testLink() {
+        XCTAssertEqual(
+            markdownToHTML("See [docs](https://example.com)."),
+            #"<p>See <a href="https://example.com">docs</a>.</p>"#
+        )
+    }
+
+    func testLinkDestinationIsEscaped() {
+        XCTAssertEqual(
+            markdownToHTML(#"[x](https://e.com/?a=1&b=2)"#),
+            #"<p><a href="https://e.com/?a=1&amp;b=2">x</a></p>"#
+        )
+    }
+
+    func testHardLineBreak() {
+        // Two trailing spaces produce a hard break.
+        XCTAssertEqual(
+            markdownToHTML("one  \ntwo"),
+            "<p>one<br>two</p>"
+        )
+    }
+
+    func testSoftBreakBecomesSpace() {
+        XCTAssertEqual(markdownToHTML("one\ntwo"), "<p>one two</p>")
+    }
+}
