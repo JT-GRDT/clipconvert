@@ -1,0 +1,64 @@
+import XCTest
+@testable import ClipConvertCore
+
+final class PlanTests: XCTestCase {
+    func testSkipsWhenHTMLFlavorPresent() {
+        // Already rich: converting could only make it worse.
+        let action = plan(plainText: "# Title\n\n**bold**", hasHTMLFlavor: true)
+        XCTAssertEqual(action, .skip(reason: .alreadyRich))
+    }
+
+    func testSkipsEmptyClipboard() {
+        XCTAssertEqual(
+            plan(plainText: "", hasHTMLFlavor: false),
+            .skip(reason: .empty)
+        )
+        XCTAssertEqual(
+            plan(plainText: "  \n ", hasHTMLFlavor: false),
+            .skip(reason: .empty)
+        )
+    }
+
+    func testEmptyIsCheckedBeforeMarkdown() {
+        // Whitespace must report .empty, not .noMarkdownFound.
+        XCTAssertEqual(
+            plan(plainText: "\n\n", hasHTMLFlavor: false),
+            .skip(reason: .empty)
+        )
+    }
+
+    func testSkipsPlainProse() {
+        XCTAssertEqual(
+            plan(plainText: "Just a sentence.", hasHTMLFlavor: false),
+            .skip(reason: .noMarkdownFound)
+        )
+    }
+
+    func testSkipsSourceCode() {
+        let shell = "# Install\nset -e\nnpm install"
+        XCTAssertEqual(
+            plan(plainText: shell, hasHTMLFlavor: false),
+            .skip(reason: .noMarkdownFound)
+        )
+    }
+
+    func testConvertsTable() {
+        let markdown = "| a | b |\n|---|---|\n| 1 | 2 |"
+        guard case .convert(let html) = plan(plainText: markdown, hasHTMLFlavor: false) else {
+            return XCTFail("expected .convert")
+        }
+        XCTAssertTrue(html.contains("<table"))
+        XCTAssertTrue(html.contains("<th>a</th>"))
+    }
+
+    func testConvertsHeadingPlusBold() {
+        guard case .convert(let html) = plan(
+            plainText: "# Title\n\nThis is **important**.",
+            hasHTMLFlavor: false
+        ) else {
+            return XCTFail("expected .convert")
+        }
+        XCTAssertTrue(html.contains("<h1>Title</h1>"))
+        XCTAssertTrue(html.contains("<strong>important</strong>"))
+    }
+}
