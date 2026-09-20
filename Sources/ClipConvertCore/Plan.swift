@@ -10,6 +10,21 @@ public enum SkipReason: Equatable {
     case empty
 }
 
+public extension SkipReason {
+    /// Short, user-facing text explaining why nothing happened. Intended
+    /// for the notification the shell shows after a no-op paste.
+    var message: String {
+        switch self {
+        case .alreadyRich:
+            return "Clipboard already has formatting — left unchanged."
+        case .noMarkdownFound:
+            return "No Markdown found — clipboard left unchanged."
+        case .empty:
+            return "Clipboard is empty."
+        }
+    }
+}
+
 /// What the shell should do with the pasteboard.
 public enum ClipboardAction: Equatable {
     case convert(html: String)
@@ -25,7 +40,17 @@ public enum ClipboardAction: Equatable {
 /// - Parameters:
 ///   - plainText: the `public.utf8-plain-text` flavor.
 ///   - hasHTMLFlavor: whether `public.html` is also present.
-public func plan(plainText: String, hasHTMLFlavor: Bool) -> ClipboardAction {
+///   - force: bypasses only the `shouldConvert` heuristic (the "Force
+///     Convert" menu item). It never bypasses the `alreadyRich` or
+///     `empty` checks: converting already-rich content can only destroy
+///     formatting the user already has, and there is nothing to convert
+///     in an empty clipboard, so forcing past either would either harm
+///     the user or do nothing.
+public func plan(
+    plainText: String,
+    hasHTMLFlavor: Bool,
+    force: Bool = false
+) -> ClipboardAction {
     if hasHTMLFlavor {
         return .skip(reason: .alreadyRich)
     }
@@ -35,7 +60,7 @@ public func plan(plainText: String, hasHTMLFlavor: Bool) -> ClipboardAction {
         return .skip(reason: .empty)
     }
 
-    guard shouldConvert(plainText) else {
+    guard force || shouldConvert(plainText) else {
         return .skip(reason: .noMarkdownFound)
     }
 

@@ -84,3 +84,44 @@ final class PlanTests: XCTestCase {
         )
     }
 }
+
+final class ForceConvertTests: XCTestCase {
+    func testForceConvertsTextThatWouldNormallySkip() {
+        let prose = "Just a sentence with no Markdown structure at all."
+        // Without force, this is plain prose and is skipped.
+        XCTAssertEqual(
+            plan(plainText: prose, hasHTMLFlavor: false),
+            .skip(reason: .noMarkdownFound)
+        )
+        guard case .convert(let html) = plan(
+            plainText: prose,
+            hasHTMLFlavor: false,
+            force: true
+        ) else {
+            return XCTFail("expected .convert when forced")
+        }
+        XCTAssertTrue(html.contains(prose))
+    }
+
+    func testForceStillSkipsAlreadyRichClipboard() {
+        XCTAssertEqual(
+            plan(plainText: "plain text", hasHTMLFlavor: true, force: true),
+            .skip(reason: .alreadyRich)
+        )
+    }
+
+    func testForceStillSkipsEmptyClipboard() {
+        XCTAssertEqual(
+            plan(plainText: "   \n ", hasHTMLFlavor: false, force: true),
+            .skip(reason: .empty)
+        )
+    }
+}
+
+final class SkipReasonMessageTests: XCTestCase {
+    func testEveryReasonHasNonEmptyMessage() {
+        XCTAssertFalse(SkipReason.alreadyRich.message.isEmpty)
+        XCTAssertFalse(SkipReason.noMarkdownFound.message.isEmpty)
+        XCTAssertFalse(SkipReason.empty.message.isEmpty)
+    }
+}
