@@ -92,6 +92,38 @@ struct HTMLRenderer: MarkupWalker {
     mutating func visitThematicBreak(_ thematicBreak: ThematicBreak) {
         html += "<hr>"
     }
+
+    mutating func visitTable(_ table: Markdown.Table) {
+        html += "<table border=\"1\" cellspacing=\"0\" cellpadding=\"4\">"
+        descendInto(table)
+        html += "</table>"
+    }
+
+    mutating func visitTableHead(_ head: Markdown.Table.Head) {
+        // Head holds cells directly, so the row wrapper is added here.
+        html += "<thead><tr>"
+        descendInto(head)
+        html += "</tr></thead>"
+    }
+
+    mutating func visitTableBody(_ body: Markdown.Table.Body) {
+        html += "<tbody>"
+        descendInto(body)
+        html += "</tbody>"
+    }
+
+    mutating func visitTableRow(_ row: Markdown.Table.Row) {
+        html += "<tr>"
+        descendInto(row)
+        html += "</tr>"
+    }
+
+    mutating func visitTableCell(_ cell: Markdown.Table.Cell) {
+        let tag = cell.parent is Markdown.Table.Head ? "th" : "td"
+        html += "<\(tag)>"
+        descendInto(cell)
+        html += "</\(tag)>"
+    }
 }
 
 /// Convert Markdown source into HTML suitable for the macOS pasteboard.

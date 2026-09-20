@@ -138,3 +138,49 @@ final class BlockRenderingTests: XCTestCase {
         XCTAssertEqual(markdownToHTML("---"), "<hr>")
     }
 }
+
+final class TableRenderingTests: XCTestCase {
+    func testSimpleTable() {
+        let markdown = """
+        | Region | Revenue |
+        |--------|---------|
+        | EMEA   | 1.2M    |
+        """
+        let expected = "<table border=\"1\" cellspacing=\"0\" cellpadding=\"4\">"
+            + "<thead><tr><th>Region</th><th>Revenue</th></tr></thead>"
+            + "<tbody><tr><td>EMEA</td><td>1.2M</td></tr></tbody>"
+            + "</table>"
+        XCTAssertEqual(markdownToHTML(markdown), expected)
+    }
+
+    func testTableWithInlineFormatting() {
+        let markdown = """
+        | Flag | Meaning |
+        |------|---------|
+        | `-v` | **verbose** |
+        """
+        let html = markdownToHTML(markdown)
+        XCTAssertTrue(html.contains("<td><code>-v</code></td>"))
+        XCTAssertTrue(html.contains("<td><strong>verbose</strong></td>"))
+    }
+
+    func testTableCellContentIsEscaped() {
+        let markdown = """
+        | Expr |
+        |------|
+        | a < b |
+        """
+        XCTAssertTrue(markdownToHTML(markdown).contains("<td>a &lt; b</td>"))
+    }
+
+    func testMultipleBodyRows() {
+        let markdown = """
+        | n |
+        |---|
+        | 1 |
+        | 2 |
+        """
+        let html = markdownToHTML(markdown)
+        XCTAssertTrue(html.contains("<tr><td>1</td></tr><tr><td>2</td></tr>"))
+    }
+}
