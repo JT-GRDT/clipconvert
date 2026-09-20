@@ -59,6 +59,39 @@ struct HTMLRenderer: MarkupWalker {
     mutating func visitLineBreak(_ lineBreak: LineBreak) {
         html += "<br>"
     }
+
+    mutating func visitUnorderedList(_ list: UnorderedList) {
+        html += "<ul>"
+        descendInto(list)
+        html += "</ul>"
+    }
+
+    mutating func visitOrderedList(_ list: OrderedList) {
+        html += "<ol>"
+        descendInto(list)
+        html += "</ol>"
+    }
+
+    mutating func visitListItem(_ listItem: ListItem) {
+        html += "<li>"
+        descendInto(listItem)
+        html += "</li>"
+    }
+
+    mutating func visitBlockQuote(_ blockQuote: BlockQuote) {
+        html += "<blockquote>"
+        descendInto(blockQuote)
+        html += "</blockquote>"
+    }
+
+    mutating func visitCodeBlock(_ codeBlock: CodeBlock) {
+        // No descendInto: a code block's content is a plain string.
+        html += "<pre><code>" + escapeHTML(codeBlock.code) + "</code></pre>"
+    }
+
+    mutating func visitThematicBreak(_ thematicBreak: ThematicBreak) {
+        html += "<hr>"
+    }
 }
 
 /// Convert Markdown source into HTML suitable for the macOS pasteboard.

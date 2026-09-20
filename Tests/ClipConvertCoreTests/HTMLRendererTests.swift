@@ -88,3 +88,53 @@ final class InlineRenderingTests: XCTestCase {
         XCTAssertEqual(markdownToHTML("one\ntwo"), "<p>one two</p>")
     }
 }
+
+final class BlockRenderingTests: XCTestCase {
+    func testUnorderedList() {
+        XCTAssertEqual(
+            markdownToHTML("- one\n- two"),
+            "<ul><li><p>one</p></li><li><p>two</p></li></ul>"
+        )
+    }
+
+    func testOrderedList() {
+        XCTAssertEqual(
+            markdownToHTML("1. one\n2. two"),
+            "<ol><li><p>one</p></li><li><p>two</p></li></ol>"
+        )
+    }
+
+    func testNestedList() {
+        let markdown = """
+        - outer
+          - inner
+        """
+        XCTAssertEqual(
+            markdownToHTML(markdown),
+            "<ul><li><p>outer</p><ul><li><p>inner</p></li></ul></li></ul>"
+        )
+    }
+
+    func testBlockQuote() {
+        XCTAssertEqual(
+            markdownToHTML("> quoted"),
+            "<blockquote><p>quoted</p></blockquote>"
+        )
+    }
+
+    func testFencedCodeBlockIsEscaped() {
+        let markdown = """
+        ```swift
+        if a < b { print("x") }
+        ```
+        """
+        XCTAssertEqual(
+            markdownToHTML(markdown),
+            "<pre><code>if a &lt; b { print(&quot;x&quot;) }\n</code></pre>"
+        )
+    }
+
+    func testThematicBreak() {
+        XCTAssertEqual(markdownToHTML("---"), "<hr>")
+    }
+}
