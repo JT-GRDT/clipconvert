@@ -290,6 +290,35 @@ thinking in it.
 checklist. Batching manual checks and front-loading everything testable into
 CI keeps the ask to roughly 20 minutes per milestone.
 
+## Known detection limitations
+
+Found by review of the implemented rule (2026-09-20), and accepted rather than
+fixed. These convert when arguably they should not:
+
+- **reStructuredText.** RST shares `**bold**` with Markdown and uses `*` for
+  list items, so an RST snippet trips block + inline.
+- **Changelog and commit-message bullets**, e.g. `- **Fixed**: crash on startup`.
+- **Chat transcripts** from tools that use Markdown-ish bold, e.g. a Discord
+  paste combining `>` quoting with `**bold**`.
+
+The second case is the reason none of these are fixable: `- **Fixed**: ...` is
+textually identical to the most common shape of genuine chatbot output — a
+bulleted list with bold labels. Any rule that rejects one rejects the other, so
+this false positive is inseparable from the product's primary true positive.
+
+What bounds the damage is the decision that plain text is always preserved as a
+pasteboard flavor: a paste into an editor, terminal or any plain-text target
+still yields the original source. The cost of a false positive is therefore an
+unwanted rich-text paste, undoable, not lost content.
+
+Confirmed *safe* (no signals fire): Jira and Confluence markup, LaTeX, and JSON
+or log output containing pipe characters.
+
+Accepted false negatives — real Markdown that will not convert: bare numbered
+or bulleted lists with no bold or link (little is lost, since such a list pastes
+acceptably as plain text), single-column GFM tables, and answers whose only
+inline markup is backticks.
+
 ## Decisions taken, for the record
 
 - **No pandoc.** 100MB+ binary, bundling and licensing headache for a menu
