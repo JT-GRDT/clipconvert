@@ -61,4 +61,26 @@ final class PlanTests: XCTestCase {
         XCTAssertTrue(html.contains("<h1>Title</h1>"))
         XCTAssertTrue(html.contains("<strong>important</strong>"))
     }
+
+    func testLeadingWhitespaceIsNotTrimmedBeforeRendering() {
+        // Four-space indentation makes this an indented code block, not a
+        // heading. plan() passes the UNTRIMMED text to markdownToHTML for
+        // exactly this reason. If it passed the trimmed string, the indent
+        // would vanish and line one would render as an <h1>.
+        //
+        // Note this pins the RENDERING call only: shouldConvert trims
+        // internally, so the indent never reaches detection either way.
+        let indented = "    # Not a heading\n\n    **not bold**"
+        guard case .convert(let html) = plan(plainText: indented, hasHTMLFlavor: false) else {
+            return XCTFail("expected .convert")
+        }
+        XCTAssertTrue(
+            html.contains("<pre><code>"),
+            "an indented block must render as code"
+        )
+        XCTAssertFalse(
+            html.contains("<h1>"),
+            "leading indentation must not be trimmed away into a heading"
+        )
+    }
 }
