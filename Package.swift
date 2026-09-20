@@ -16,7 +16,11 @@ let package = Package(
         ),
         .testTarget(
             name: "ClipConvertCoreTests",
-            dependencies: ["ClipConvertCore"]
+            dependencies: ["ClipConvertCore"],
+            resources: [
+                .copy("Fixtures"),
+                .copy("Negative")
+            ]
         )
     ]
 )

@@ -1,0 +1,8 @@
+order_id,customer,region,amount,status
+1001,Acme Retail,North,482.50,shipped
+1002,Blue Harbor Co,South,129.99,pending
+1003,Crestview Traders,East,845.00,shipped
+1004,Driftwood Supply,West,67.25,cancelled
+1005,Everline Goods,North,1203.10,shipped
+-----------------------------------------
+totals,,,2727.84,

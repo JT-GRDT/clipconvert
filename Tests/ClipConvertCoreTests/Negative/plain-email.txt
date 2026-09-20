@@ -1,0 +1,20 @@
+Hi team,
+
+Just a quick note before the end of the week. The migration went out this
+morning without any issues, and traffic looks steady so far. I want to say
+this was a *genuinely* smooth rollout compared to last quarter, so thanks to
+everyone who stayed late on Tuesday to finish the checklist.
+
+A couple of things to keep an eye on next week:
+
+- the nightly backup job runs about twenty minutes longer than before
+- support has already flagged two tickets about the new login screen
+
+Neither one seems urgent, but let's revisit both at Monday's standup rather
+than letting them sit in the queue. If anything changes over the weekend,
+just ping me directly and I will take a look.
+
+Have a good weekend, everyone.
+
+Best,
+Sam

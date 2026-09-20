@@ -1,0 +1,11 @@
+-------------------------------------------------------------
+ application startup - build 4821 - environment: staging
+-------------------------------------------------------------
+2026-09-18T08:12:03Z | INFO  | worker-1 | queue depth = 0
+2026-09-18T08:12:05Z | INFO  | worker-2 | connected to upstream cache
+2026-09-18T08:12:41Z | WARN  | worker-1 | retrying request after timeout
+2026-09-18T08:12:41Z | INFO  | worker-1 | retry succeeded on attempt 2
+2026-09-18T08:13:02Z | ERROR | worker-3 | failed to acquire lock on job 5521
+2026-09-18T08:13:02Z | INFO  | worker-3 | job 5521 requeued for later
+2026-09-18T08:14:17Z | INFO  | worker-2 | queue depth = 14
+2026-09-18T08:15:00Z | INFO  | scheduler | health check ok, 3 workers reporting

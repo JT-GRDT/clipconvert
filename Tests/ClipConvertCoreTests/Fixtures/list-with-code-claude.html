@@ -1,0 +1,23 @@
+<h2>What <code>git rebase</code> does</h2><p>Rebase takes the commits from your current branch and replays them on top of another branch, creating a linear history instead of a merge commit.</p><ol><li><p><strong>Find the common ancestor</strong> — Git identifies the point where your branch diverged from the target branch (e.g., <code>main</code>).</p></li><li><p><strong>Save your commits temporarily</strong> — Git sets aside the commits unique to your branch since that divergence point.</p></li><li><p><strong>Reset your branch</strong> — Your branch pointer is moved to the tip of the target branch.</p></li><li><p><strong>Replay each commit one by one</strong> — Git reapplies your saved commits on top of the new base, generating new commit hashes for each.</p></li><li><p><strong>Resolve conflicts if any arise</strong> — If a commit can’t apply cleanly, rebase pauses so you can fix the conflict, then you run <code>git rebase --continue</code>.</p></li><li><p><strong>Finish with a linear history</strong> — Once all commits are replayed, your branch looks like it was built directly on top of the latest target branch, with no merge commit.</p></li></ol><h2>Code example</h2><pre><code># Start on your feature branch
+git checkout feature-branch
+
+# Rebase it onto the latest main
+git rebase main
+
+# If there's a conflict, git pauses and shows you the conflicted files
+# Edit the files to resolve conflicts, then:
+git add &lt;resolved-file&gt;
+git rebase --continue
+
+# If you want to abort and go back to how things were:
+git rebase --abort
+
+# Once done, your feature branch has main's latest commits underneath it,
+# with your commits replayed on top — no merge commit involved
+</code></pre><p><strong>Before rebase:</strong></p><pre><code>main:     A---B---C
+                \\
+feature:         D---E
+</code></pre><p><strong>After <code>git rebase main</code> (while on feature):</strong></p><pre><code>main:     A---B---C
+                    \\
+feature:             D'---E'
+</code></pre><p>Note: <code>D'</code> and <code>E'</code> are new commits with different hashes — this is why you should avoid rebasing commits that have already been pushed and shared with others, since it rewrites history.</p>

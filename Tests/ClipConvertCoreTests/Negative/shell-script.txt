@@ -1,0 +1,36 @@
+#!/bin/bash
+# Rotate log files older than a given number of days and compress the rest.
+# Usage: rotate-logs.sh <directory> <days>
+
+set -euo pipefail
+
+TARGET_DIR="${1:-/var/log/app}"
+MAX_AGE_DAYS="${2:-7}"
+
+# Bail out early if the target directory does not exist.
+if [ ! -d "$TARGET_DIR" ]; then
+  echo "error: $TARGET_DIR does not exist" >&2
+  exit 1
+fi
+
+echo "scanning $TARGET_DIR for files older than $MAX_AGE_DAYS days"
+
+for file in "$TARGET_DIR"/*.log; do
+  # Skip the glob itself when nothing matches.
+  [ -e "$file" ] || continue
+
+  age_days=$(( ( $(date +%s) - $(stat -c %Y "$file") ) / 86400 ))
+
+  if [ "$age_days" -ge "$MAX_AGE_DAYS" ]; then
+    # Compress instead of delete so the data is recoverable if needed.
+    gzip -f "$file"
+    echo "compressed $file (age: ${age_days}d)"
+  else
+    echo "keeping $file (age: ${age_days}d)"
+  fi
+done
+
+# Clean up any archives past the retention window entirely.
+find "$TARGET_DIR" -name '*.log.gz' -mtime +30 -delete
+
+echo "done"

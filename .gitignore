@@ -4,3 +4,4 @@
 *.xcodeproj
 .DS_Store
 artifacts/
+incoming/
