@@ -1,3 +1,4 @@
+import Foundation
 import Markdown
 
 /// Walks a parsed Markdown document and accumulates HTML.
@@ -67,7 +68,11 @@ struct HTMLRenderer: MarkupWalker {
     }
 
     mutating func visitOrderedList(_ list: OrderedList) {
-        html += "<ol>"
+        if list.startIndex != 1 {
+            html += "<ol start=\"\(list.startIndex)\">"
+        } else {
+            html += "<ol>"
+        }
         descendInto(list)
         html += "</ol>"
     }
@@ -124,9 +129,45 @@ struct HTMLRenderer: MarkupWalker {
         descendInto(cell)
         html += "</\(tag)>"
     }
+
+    mutating func visitHTMLBlock(_ htmlBlock: HTMLBlock) {
+        // No descendInto: raw HTML has no child markup to walk.
+        html += renderedRawHTML(htmlBlock.rawHTML)
+    }
+
+    mutating func visitInlineHTML(_ inlineHTML: InlineHTML) {
+        // No descendInto: raw HTML has no child markup to walk.
+        html += renderedRawHTML(inlineHTML.rawHTML)
+    }
+}
+
+/// Render a raw HTML fragment from the source Markdown.
+///
+/// `<br>` is GFM's only way to force a line break inside constructs like
+/// table cells, and chatbots emit it, so it is passed through as an actual
+/// break. Everything else is escaped and shown as visible literal text:
+/// we cannot vouch for arbitrary HTML flowing into `NSAttributedString`
+/// on the Mac side, but silently dropping it is the one failure mode the
+/// spec rules out entirely. Showing the markup as text loses nothing.
+private func renderedRawHTML(_ rawText: String) -> String {
+    let normalized = rawText.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+    if normalized == "<br>" || normalized == "<br/>" || normalized == "<br />" {
+        return "<br>"
+    }
+    return escapeHTML(rawText)
 }
 
 /// Convert Markdown source into HTML suitable for the macOS pasteboard.
+///
+/// The result is a UTF-8 encoded HTML fragment (no `<html>`/`<body>`
+/// wrapper, no `<meta charset>`). A consumer that turns it into an
+/// `NSAttributedString` via `NSAttributedString(data:options:)` MUST pass
+/// both `.documentType: .html` and
+/// `.characterEncoding: String.Encoding.utf8.rawValue` in the options
+/// dictionary. Without an explicit encoding, `NSAttributedString` guesses
+/// at the byte encoding, and most real fixtures contain non-ASCII
+/// characters (em dashes, curly quotes, currency symbols) that a wrong
+/// guess turns into mojibake.
 public func markdownToHTML(_ markdown: String) -> String {
     let document = Document(parsing: markdown)
     var renderer = HTMLRenderer()

@@ -184,3 +184,52 @@ final class TableRenderingTests: XCTestCase {
         XCTAssertTrue(html.contains("<tr><td>1</td></tr><tr><td>2</td></tr>"))
     }
 }
+
+final class RawHTMLRenderingTests: XCTestCase {
+    func testBreakTagInsideTableCellIsPreserved() {
+        let markdown = """
+        | n |
+        |---|
+        | first<br>second |
+        """
+        XCTAssertTrue(
+            markdownToHTML(markdown).contains("<td>first<br>second</td>"),
+            "a <br> inside a cell must not fuse the two words together"
+        )
+    }
+
+    func testUnknownInlineHTMLIsEscapedNotDropped() {
+        let html = markdownToHTML("before <span>x</span> after")
+        XCTAssertTrue(
+            html.contains("&lt;span&gt;x&lt;/span&gt;"),
+            "unrecognized raw HTML must appear as visible escaped text, not vanish"
+        )
+    }
+
+    func testHTMLBlockIsEscapedNotDropped() {
+        let markdown = """
+        Before.
+
+        <div>raw block</div>
+
+        After.
+        """
+        let html = markdownToHTML(markdown)
+        XCTAssertTrue(
+            html.contains("&lt;div&gt;raw block&lt;/div&gt;"),
+            "a raw HTML block must appear as visible escaped text, not vanish"
+        )
+        XCTAssertTrue(html.contains("Before."))
+        XCTAssertTrue(html.contains("After."))
+    }
+}
+
+final class OrderedListStartIndexTests: XCTestCase {
+    func testOrderedListStartingAtThreeEmitsStartAttribute() {
+        let markdown = "3. three\n4. four"
+        XCTAssertEqual(
+            markdownToHTML(markdown),
+            "<ol start=\"3\"><li><p>three</p></li><li><p>four</p></li></ol>"
+        )
+    }
+}
