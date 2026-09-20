@@ -1,0 +1,17 @@
+Warehouse rack layout, bay 4 (hand-drawn, not to scale):
+
+     Bin A   Bin B   Bin C
+     -----------------------
+      -|-     -|-     -|-
+     -  |  -  -  |  -  -  |  -
+      -----   -----   -----
+       |||     |||     |||
+
+Legend: each -|- marks an empty slot, the boxed columns are the shelf
+uprights. Counted 9 empty slots and 3 uprights during the walkthrough
+this morning.
+
+Notes from the walkthrough:
+- Bay 4 needs restocking before Friday.
+- Bay 5 was fine, no gaps found.
+- Ping the floor lead once restocked.

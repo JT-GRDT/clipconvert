@@ -34,8 +34,17 @@ public func detectSignals(_ text: String) -> MarkdownSignals {
 
     // A table delimiter row needs at least two columns, which is what
     // separates it from a horizontal rule.
+    //
+    // We require three-or-more dashes per cell even though GFM itself
+    // permits a single dash. A short run of dashes joined by pipes
+    // (`-|-`, `-  |  -`) also occurs in ASCII art and hand-typed
+    // plain-text tables, and a table delimiter is a strong signal that
+    // triggers conversion on its own, with no corroboration required.
+    // Per the conservatism constraint (a missed conversion is
+    // acceptable, a wrong conversion is not), we accept the rare missed
+    // short-delimiter GFM table rather than risk mangling ASCII art.
     signals.tableDelimiter = matches(
-        #"^ {0,3}\|?[ \t]*:?-{1,}:?[ \t]*(\|[ \t]*:?-{1,}:?[ \t]*)+\|?[ \t]*$"#,
+        #"^ {0,3}\|?[ \t]*:?-{3,}:?[ \t]*(\|[ \t]*:?-{3,}:?[ \t]*)+\|?[ \t]*$"#,
         text
     )
     signals.fence = matches(#"^ {0,3}(```|~~~)"#, text)

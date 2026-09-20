@@ -316,8 +316,14 @@ or log output containing pipe characters.
 
 Accepted false negatives — real Markdown that will not convert: bare numbered
 or bulleted lists with no bold or link (little is lost, since such a list pastes
-acceptably as plain text), single-column GFM tables, and answers whose only
-inline markup is backticks.
+acceptably as plain text), single-column GFM tables, answers whose only
+inline markup is backticks, and GFM tables using short delimiter rows
+(`|-|-|`, `|--|--|`) instead of the conventional three-or-more dashes per
+cell. Short delimiters are rejected deliberately, not missed by oversight:
+the dash-and-pipe shape (`-|-`) also occurs in ASCII art and hand-typed
+plain-text tables, and a table delimiter is a strong signal that converts on
+its own with no corroboration required, so a false positive there is not
+bounded the way an inline-signal false positive is.
 
 ## Decisions taken, for the record
 

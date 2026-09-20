@@ -25,18 +25,25 @@ final class DetectionTests: XCTestCase {
         XCTAssertFalse(detectSignals("-----").tableDelimiter)
     }
 
-    func testShortDoubleDashDelimiterRowIsATable() {
-        // GFM allows a single dash per cell; two columns rule out a
-        // horizontal rule.
-        XCTAssertTrue(detectSignals("|--|--|").tableDelimiter)
+    // Short dash-per-cell delimiter rows are a deliberate, accepted false
+    // negative — NOT an oversight. GFM permits a single dash per cell, but
+    // a pipe-and-dash line with short runs (`-|-`, `--|--`) also occurs in
+    // ASCII art and hand-typed plain-text tables, and a table delimiter is
+    // a strong signal that converts on its own with no corroboration
+    // needed. Per the spec's conservatism constraint ("a missed conversion
+    // is acceptable, a wrong conversion is not"), these must stay
+    // undetected. Do not "fix" these back to XCTAssertTrue.
+
+    func testShortDoubleDashDelimiterRowIsDeliberatelyNotDetected() {
+        XCTAssertFalse(detectSignals("|--|--|").tableDelimiter)
     }
 
-    func testSingleDashDelimiterRowIsATable() {
-        XCTAssertTrue(detectSignals("|-|-|").tableDelimiter)
+    func testSingleDashDelimiterRowIsDeliberatelyNotDetected() {
+        XCTAssertFalse(detectSignals("|-|-|").tableDelimiter)
     }
 
-    func testAlignedSingleDashDelimiterRowIsATable() {
-        XCTAssertTrue(detectSignals("|:-|-:|").tableDelimiter)
+    func testAlignedSingleDashDelimiterRowIsDeliberatelyNotDetected() {
+        XCTAssertFalse(detectSignals("|:-|-:|").tableDelimiter)
     }
 
     func testDetectsCodeFence() {
