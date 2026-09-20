@@ -1,0 +1,40 @@
+# Paste fidelity checklist
+
+Thanks for testing. This takes about 15 minutes.
+
+## Setup
+
+1. Download the `rtfprobe` artifact from the latest GitHub Actions run
+   (Actions tab → newest run → Artifacts → `rtfprobe`), and unzip it.
+2. In Terminal, in the folder containing the file:
+
+   ```
+   chmod +x rtfprobe
+   xattr -d com.apple.quarantine rtfprobe
+   ./rtfprobe
+   ```
+
+   It should print `OK: wrote RTF (...) bytes`. If it hangs for more than
+   ten seconds, press Ctrl+C and report that — it is a useful result.
+
+## Test
+
+Paste (Cmd+V) into each app below and record what you see. Do not use
+Paste and Match Style.
+
+| App | Table has gridlines? | Header row bold? | "up 12%" bold? | Heading larger? | Bullets are bullets? |
+|---|---|---|---|---|---|
+| Microsoft Word | | | | | |
+| Outlook for Mac (new message) | | | | | |
+| Gmail in Chrome | | | | | |
+| Google Docs | | | | | |
+| Apple Notes | | | | | |
+| TextEdit (rich text mode) | | | | | |
+
+## The one that matters most
+
+Outlook for Mac. If the table arrives as a real table there, the project
+works. If it arrives as runs of text, say so — that single answer changes
+the design.
+
+Please also paste a screenshot of the Word and Outlook results.
